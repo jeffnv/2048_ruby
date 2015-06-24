@@ -1,4 +1,3 @@
-re 'byebug'
 class Board
   DIRECTIONS = [:left, :right, :up, :down]
   BOARD_SIZE = 4
@@ -13,35 +12,9 @@ class Board
     end
   end
 
-  def add_random_two
-    col = rand(BOARD_SIZE)
-    row = rand(BOARD_SIZE)
-    if @grid[row][col].nil?
-      puts "added a two"
-      @grid[row][col] = 2 
-    else
-      add_random_two
-    end
-  end
-
-  def over?
-    @grid.all? { |row| row.all? { |tile| !tile.nil? } }
-  end
-
-  def dup
-    Board.new(@grid.map { |row| row.dup })
-  end
-
-  def ==(other)
-    other.grid.each_with_index do |row, row_index|
-      return false if row != self.grid[row_index]
-    end
-    true
-  end
-
   def move(dir)
     return unless DIRECTIONS.include?(dir)
-    before_move = self.dup
+    before_move = dup
     case dir
     when :left
       @grid.map! { |row| slide_row(row) }
@@ -55,6 +28,43 @@ class Board
     end
     add_random_two if before_move != self
   end
+
+  def over?
+    lost? || won?
+  end
+
+  def lost?
+    @grid.all? { |row| row.all? { |tile| !tile.nil? } }
+  end
+
+  def won?
+    @grid.flatten.any? { |tile| tile && (tile >= 2048) }
+  end
+
+  private
+
+  def add_random_two
+    col = rand(BOARD_SIZE)
+    row = rand(BOARD_SIZE)
+    if @grid[row][col].nil?
+      @grid[row][col] = 2 
+    else
+      add_random_two
+    end
+  end
+
+
+  def dup
+    Board.new(@grid.map { |row| row.dup })
+  end
+
+  def ==(other)
+    other.grid.each_with_index do |row, row_index|
+      return false if row != self.grid[row_index]
+    end
+    true
+  end
+
 
   def slide_row(row)
     slid_array = row.compact
@@ -78,8 +88,9 @@ class Board
   def to_s
     content = ""
     @grid.each do |row|
+      content << "\n"
       row.each do |num| 
-        content << (num || "*").to_s
+        content << (num || "*").to_s.ljust(4, " ")
       end
       content << "\n"
     end
