@@ -1,4 +1,5 @@
 require_relative "board"
+
 class Twenty48
   DIR_MAP = {'j' => :down, 'h' => :left, 'k' => :up, 'l' => :right}
   def initialize
@@ -11,6 +12,9 @@ class Twenty48
       @board.display
       @board.move(get_dir)
     end
+    @board.display
+    result = @board.won? ? "YOU WON! :)" : "YOU DIDN'T WIN :/"
+    puts result
   end
 
   private
